@@ -1,33 +1,130 @@
-radio.onReceivedString(function (receivedString) {
-    radiostring = receivedString
-    outputradio = ""
-    if (radiostring.substr(0, 4) == "COM?") {
-        outputradio = "COM=" + input.compassHeading() + String.fromCharCode(linefeed)
-        sema = true
-    } else if (radiostring.substr(0, 4) == "ACC?") {
-        outputradio = "ACC=" + input.acceleration(Dimension.Strength) + String.fromCharCode(linefeed)
-        sema = true
-    } else if (radiostring.substr(0, 4) == "TMP?") {
-        radio.sendString("" + input.temperature() + String.fromCharCode(linefeed))
-    } else if (radiostring.substr(0, 4) == "ACX?") {
-        radio.sendString("" + input.acceleration(Dimension.X) + String.fromCharCode(linefeed))
-    } else {
-        radio.sendString("" + radiostring + "????" + String.fromCharCode(linefeed))
-    }
+input.onButtonPressed(Button.A, function () {
+    basic.showLeds(`
+        # . . . #
+        . # . # .
+        . . # . .
+        . # . # .
+        # . . . #
+        `)
+    refx = input.acceleration(Dimension.X)
+    refy = input.acceleration(Dimension.Y)
+    refz = input.acceleration(Dimension.Z)
+    refa = input.acceleration(Dimension.Strength)
+    refcos = (input.acceleration(Dimension.X) * refx + input.acceleration(Dimension.Y) * refy + input.acceleration(Dimension.Z) * refz) / (input.acceleration(Dimension.Strength) * refa)
+    basic.pause(200)
+    basic.showLeds(`
+        . . . . .
+        . . . . .
+        . . . . .
+        . . . . .
+        . . . . .
+        `)
 })
+radio.onReceivedString(function (receivedString) {
+    radioin = receivedString
+    radiostring = "" + radiostring + radioin
+    sema = true
+})
+input.onButtonPressed(Button.B, function () {
+    basic.showLeds(`
+        . . # . .
+        . . # . .
+        # # # # #
+        . . # . .
+        . . # . .
+        `)
+    max = (input.acceleration(Dimension.X) * refx + input.acceleration(Dimension.Y) * refy + input.acceleration(Dimension.Z) * refz) / (input.acceleration(Dimension.Strength) * refa)
+    basic.pause(200)
+    basic.showLeds(`
+        . . . . .
+        . . . . .
+        . . . . .
+        . . . . .
+        . . . . .
+        `)
+})
+let cos = 0
 let outputradio = ""
+let max = 0
+let refcos = 0
+let refa = 0
+let refz = 0
+let refy = 0
+let refx = 0
+let radioin = ""
 let radiostring = ""
 let sema = false
-let linefeed = 0
 radio.setGroup(1)
 radio.setTransmitPower(7)
 radio.setFrequencyBand(0)
-linefeed = 10
+let linefeed = String.fromCharCode(10)
 sema = false
+radiostring = ""
+radioin = ""
 basic.showIcon(IconNames.Yes)
 basic.forever(function () {
     if (sema == true) {
+        if (radiostring.substr(0, 4) == "COM?") {
+            outputradio = "COM=" + input.compassHeading() + linefeed
+            sema = true
+        } else if (radiostring.substr(0, 4) == "ACC?") {
+            outputradio = "ACC=" + input.acceleration(Dimension.Strength) + linefeed
+            sema = true
+        } else if (radiostring.substr(0, 4) == "TMP?") {
+            outputradio = "TMP=" + input.temperature() + linefeed
+            sema = true
+        } else if (radiostring.substr(0, 4) == "ACX?") {
+            outputradio = "ACX=" + input.acceleration(Dimension.X) + linefeed
+            sema = true
+        } else if (radiostring.substr(0, 4) == "REF!") {
+            refx = input.acceleration(Dimension.X)
+            refy = input.acceleration(Dimension.Y)
+            refz = input.acceleration(Dimension.Z)
+            refa = input.acceleration(Dimension.Strength)
+            outputradio = "DONE" + linefeed
+        } else if (radiostring.substr(0, 4) == "COS?") {
+            outputradio = "" + cos + linefeed
+            sema = true
+        } else {
+            outputradio = "????" + radioin + linefeed
+            sema = true
+        }
         radio.sendString(outputradio)
         sema = false
+        radiostring = ""
+    }
+    cos = (input.acceleration(Dimension.X) * refx + input.acceleration(Dimension.Y) * refy + input.acceleration(Dimension.Z) * refz) / (input.acceleration(Dimension.Strength) * refa)
+    if (cos > refcos - (refcos - max) * 0.25) {
+        basic.showLeds(`
+            . . . . .
+            . . . . .
+            . . # . .
+            . . . . .
+            . . . . .
+            `)
+    } else if (cos <= max) {
+        basic.showLeds(`
+            # # # # #
+            # . . . #
+            # . . . #
+            # . . . #
+            # # # # #
+            `)
+    } else if (cos <= refcos - (refcos - max) * 0.75) {
+        basic.showLeds(`
+            . # . # .
+            # . . . #
+            . . . . .
+            # . . . #
+            . # . # .
+            `)
+    } else {
+        basic.showLeds(`
+            . . . . .
+            . # . # .
+            . . . . .
+            . # . # .
+            . . . . .
+            `)
     }
 })
