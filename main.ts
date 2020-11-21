@@ -135,9 +135,9 @@ basic.forever(function () {
         if (TILT != true) {
             if (UNNE == true) {
                 outputradio = "ZIEH" + linefeed
-                start = input.runningTime()
                 UNNE = false
                 radio.sendString(outputradio)
+                start = input.runningTime()
             }
         }
     } else {
@@ -155,6 +155,7 @@ basic.forever(function () {
         if (input.runningTime() - start >= 1500) {
             outputradio = "FALL" + linefeed
             radio.sendString(outputradio)
+            start = input.runningTime()
         }
     }
 })
