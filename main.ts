@@ -34,6 +34,7 @@ input.onButtonPressed(Button.B, function () {
         . . # . .
         `)
     max = (input.acceleration(Dimension.X) * refx + input.acceleration(Dimension.Y) * refy + input.acceleration(Dimension.Z) * refz) / (input.acceleration(Dimension.Strength) * refa)
+    clim = refcos - max
     basic.pause(200)
     basic.showLeds(`
         . . . . .
@@ -43,8 +44,12 @@ input.onButtonPressed(Button.B, function () {
         . . . . .
         `)
 })
+let start = 0
+let UNNE = false
+let TILT = false
 let cos = 0
 let outputradio = ""
+let clim = 0
 let max = 0
 let refcos = 0
 let refa = 0
@@ -94,7 +99,48 @@ basic.forever(function () {
         radiostring = ""
     }
     cos = (input.acceleration(Dimension.X) * refx + input.acceleration(Dimension.Y) * refy + input.acceleration(Dimension.Z) * refz) / (input.acceleration(Dimension.Strength) * refa)
-    if (cos > refcos - (refcos - max) * 0.25) {
+    if (cos < refcos - 0.8 * clim) {
+        basic.showLeds(`
+            # # # # #
+            # . . . #
+            # . . . #
+            # . . . #
+            # # # # #
+            `)
+        TILT = true
+    } else if (cos > refcos - 0.8 * clim && cos < refcos - 0.6 * clim) {
+        basic.showLeds(`
+            . # . # .
+            # . . . #
+            . . . . .
+            # . . . #
+            . # . # .
+            `)
+    } else if (cos > refcos - 0.6 * clim && cos < refcos - 0.4 * clim) {
+        basic.showLeds(`
+            . . . . .
+            . # # # .
+            . # . # .
+            . # # # .
+            . . . . .
+            `)
+    } else if (cos > refcos - 0.4 * clim && cos < refcos - 0.2 * clim) {
+        basic.showLeds(`
+            . . . . .
+            . . # . .
+            . # . # .
+            . . # . .
+            . . . . .
+            `)
+        if (TILT != true) {
+            if (UNNE == true) {
+                outputradio = "ZIEH" + linefeed
+                start = input.runningTime()
+                UNNE = false
+                radio.sendString(outputradio)
+            }
+        }
+    } else {
         basic.showLeds(`
             . . . . .
             . . . . .
@@ -102,29 +148,13 @@ basic.forever(function () {
             . . . . .
             . . . . .
             `)
-    } else if (cos <= max) {
-        basic.showLeds(`
-            # # # # #
-            # . . . #
-            # . . . #
-            # . . . #
-            # # # # #
-            `)
-    } else if (cos <= refcos - (refcos - max) * 0.75) {
-        basic.showLeds(`
-            . # . # .
-            # . . . #
-            . . . . .
-            # . . . #
-            . # . # .
-            `)
-    } else {
-        basic.showLeds(`
-            . . . . .
-            . # . # .
-            . . . . .
-            . # . # .
-            . . . . .
-            `)
+        UNNE = true
+        TILT = false
+    }
+    if (TILT != true) {
+        if (input.runningTime() - start >= 1500) {
+            outputradio = "FALL" + linefeed
+            radio.sendString(outputradio)
+        }
     }
 })
