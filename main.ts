@@ -109,29 +109,59 @@ basic.forever(function () {
             `)
         TILT = true
     } else if (cos > refcos - 0.8 * clim && cos < refcos - 0.6 * clim) {
-        basic.showLeds(`
-            . # . # .
-            # . . . #
-            . . . . .
-            # . . . #
-            . # . # .
-            `)
+        if (TILT == true) {
+            basic.showLeds(`
+                # # . # #
+                # . . . #
+                . . . . .
+                # . . . #
+                # # . # #
+                `)
+        } else {
+            basic.showLeds(`
+                . # . # .
+                # . . . #
+                . . . . .
+                # . . . #
+                . # . # .
+                `)
+        }
     } else if (cos > refcos - 0.6 * clim && cos < refcos - 0.4 * clim) {
-        basic.showLeds(`
-            . . . . .
-            . # # # .
-            . # . # .
-            . # # # .
-            . . . . .
-            `)
+        if (TILT == true) {
+            basic.showLeds(`
+                # . . . #
+                . # # # .
+                . # . # .
+                . # # # .
+                # . . . #
+                `)
+        } else {
+            basic.showLeds(`
+                . . . . .
+                . # # # .
+                . # . # .
+                . # # # .
+                . . . . .
+                `)
+        }
     } else if (cos > refcos - 0.4 * clim && cos < refcos - 0.2 * clim) {
-        basic.showLeds(`
-            . . . . .
-            . . # . .
-            . # . # .
-            . . # . .
-            . . . . .
-            `)
+        if (TILT == true) {
+            basic.showLeds(`
+                # . . . #
+                . . # . .
+                . # . # .
+                . . # . .
+                # . . . #
+                `)
+        } else {
+            basic.showLeds(`
+                . . . . .
+                . . # . .
+                . # . # .
+                . . # . .
+                . . . . .
+                `)
+        }
         if (TILT != true) {
             if (UNNE == true) {
                 outputradio = "ZIEH" + linefeed
@@ -141,15 +171,24 @@ basic.forever(function () {
             }
         }
     } else {
-        basic.showLeds(`
-            . . . . .
-            . . . . .
-            . . # . .
-            . . . . .
-            . . . . .
-            `)
+        if (TILT == true) {
+            basic.showLeds(`
+                # . . . #
+                . . . . .
+                . . # . .
+                . . . . .
+                # . . . #
+                `)
+        } else {
+            basic.showLeds(`
+                . . . . .
+                . . . . .
+                . . # . .
+                . . . . .
+                . . . . .
+                `)
+        }
         UNNE = true
-        TILT = false
     }
     if (TILT != true) {
         if (input.runningTime() - start >= 1500) {
